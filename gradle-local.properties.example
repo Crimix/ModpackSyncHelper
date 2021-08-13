@@ -1,0 +1,4 @@
+# Copy this file to the root of the project and name it gradle-local.properties
+# Fill in the values and build it to generate a jar
+modpack_name=
+modpack_sync_json_url=

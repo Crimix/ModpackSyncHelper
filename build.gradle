@@ -1,0 +1,58 @@
+plugins {
+    id 'java'
+    id 'net.saliman.properties' version '1.5.1'
+    id "com.github.johnrengelman.shadow" version "7.0.0"
+}
+
+group app_group
+version = version_major + '.' + version_minor
+archivesBaseName = "ModpackSynHelper-" + modpack_name
+
+repositories {
+    mavenCentral()
+}
+
+configurations {
+    shadowImplementation
+    implementation.extendsFrom(shadowImplementation)
+}
+
+dependencies {
+    shadowImplementation 'com.google.code.gson:gson:2.8.7'
+    shadowImplementation 'org.jsoup:jsoup:1.14.1'
+
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.0'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.7.0'
+}
+
+processResources {
+    duplicatesStrategy = DuplicatesStrategy.INCLUDE
+    from(sourceSets.main.resources.srcDirs) {
+        include 'app.properties'
+
+        expand  'replaceName':project.modpack_name,
+                'replaceUrl':project.modpack_sync_json_url,
+                'replaceVersion':project.version
+    }
+}
+
+jar {
+    manifest {
+        attributes 'Main-Class': 'com.black_dog20.modpacksynchelper.Main'
+    }
+}
+
+shadowJar {
+    configurations = [project.configurations.shadowImplementation]
+    relocate 'com.google.gson', 'com.black_dog20.modpacksynchelper.shadow.gson'
+    relocate 'org.jsoup', 'com.black_dog20.modpacksynchelper.shadow.jsoup'
+    minimize()
+    classifier '' // Replace the default jar
+}
+
+tasks.build.dependsOn shadowJar
+jar.finalizedBy('shadowJar')
+
+test {
+    useJUnitPlatform()
+}

@@ -1,0 +1,26 @@
+{
+  "modsToChangeState": [
+    {
+      "name": "Not-fun-client-Mod-1.0.jar",
+      "active": false
+    },
+    {
+      "name": "Fun-client-Mod-1.0.jar",
+      "active": true
+    }
+  ],
+  "modsToDelete": [
+    {
+      "name": "Unwanted-mod-1.0"
+    },
+    {
+      "name": "Unwanted-mod-2.0"
+    }
+  ],
+  "modsToDownload": [
+    {
+      "name": "ServerTabInfo-1.17.1-1.3.4-b2.jar",
+      "downloadUrl": "https://media.forgecdn.net/files/3418/108/ServerTabInfo-1.17.1-1.3.4-b2.jar"
+    }
+  ]
+}
