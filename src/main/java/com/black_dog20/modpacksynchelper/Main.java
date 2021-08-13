@@ -32,7 +32,7 @@ import java.util.stream.Collectors;
 
 public class Main {
 
-    private final URL sourceCodeURL = new URL("https://github.com/Crimix");
+    private final URL sourceCodeURL = new URL("https://github.com/Crimix/ModpackSyncHelper");
 
     public Main() throws MalformedURLException {
     }
