@@ -1,6 +1,10 @@
 # ModpackSyncHelper
+
 ### What is this
 A tool to help people with playing modified modpacks with friends.  
+<div align="center">
+<img src="https://user-images.githubusercontent.com/7978180/129472690-94c574c4-60e8-4fd6-8178-46ec75208daf.png" width="329" height="342">
+</div>
 
 ### Why?
 We all know the usual way of playing a modified modpack with friends 
@@ -21,7 +25,7 @@ Then run the `jar` task and send the build jar under `root/build/libs/` to all w
 - You can specific mods to be deleted, if you disagree with the modpack author about a specific mod.
 - You can add mods which should be downloaded to play on the server.
     - This can be a private alpha or beta versioned hosted somewhere.
-    - Mods from CurseForge (Note the url in the json needs to be resolved aka without redirects, see `debug.json` for an example)
+    - Mods from CurseForge, by project and file id
 
 ### Is it safe?
 This really depends on your friend as this tool can make it possible to download random files from the internet, not just jars.
@@ -47,6 +51,12 @@ So you have to trust them.
         },
         {
             "name": "another-unwanted-mod-name.jar"
+        }
+    ],
+    "curseModsToDownload": [
+        {
+            "projectId": <project id>,
+            "fileId": <file id>
         }
     ],
     "modsToDownload": [
