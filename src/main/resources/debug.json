@@ -17,6 +17,12 @@
       "name": "Unwanted-mod-2.0"
     }
   ],
+  "curseModsToDownload": [
+    {
+      "projectId": 291788,
+      "fileId": 3118698
+    }
+  ],
   "modsToDownload": [
     {
       "name": "ServerTabInfo-1.17.1-1.3.4-b2.jar",

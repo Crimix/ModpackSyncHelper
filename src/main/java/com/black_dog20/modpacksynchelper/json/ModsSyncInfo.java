@@ -7,6 +7,7 @@ public class ModsSyncInfo {
 
     private List<ModFileState> modsToChangeState = new ArrayList<>();
     private List<ModFile> modsToDelete = new ArrayList<>();
+    private List<CurseDownload> curseModsToDownload = new ArrayList<>();
     private List<ModDownload> modsToDownload = new ArrayList<>();
 
     public ModsSyncInfo() {
@@ -19,6 +20,10 @@ public class ModsSyncInfo {
 
     public List<ModFile> getModsToDelete() {
         return modsToDelete;
+    }
+
+    public List<CurseDownload> getCurseModsToDownload() {
+        return curseModsToDownload;
     }
 
     public List<ModDownload> getModsToDownload() {

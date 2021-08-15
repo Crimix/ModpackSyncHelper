@@ -1,26 +1,23 @@
-package com.black_dog20.modpacksynchelper.handler;
+package com.black_dog20.modpacksynchelper;
 
-import com.black_dog20.modpacksynchelper.Main;
+import com.black_dog20.modpacksynchelper.curse.CurseHelper;
+import com.black_dog20.modpacksynchelper.json.CurseDownload;
 import com.black_dog20.modpacksynchelper.json.ModDownload;
 import com.black_dog20.modpacksynchelper.json.ModFile;
 import com.black_dog20.modpacksynchelper.json.ModFileState;
 import com.black_dog20.modpacksynchelper.json.ModsSyncInfo;
 import com.black_dog20.modpacksynchelper.utils.DialogUtils;
 import com.black_dog20.modpacksynchelper.utils.JsonUtil;
+import com.black_dog20.modpacksynchelper.utils.UrlHelper;
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -46,7 +43,8 @@ public class ModHandler {
                 DialogUtils.showErrorDialogAndClose(String.format("Could not find mods folder in %s", root.getPath()));
             }
 
-        } catch (Exception e) {
+        } catch (Exception exception) {
+            System.err.println(exception.getLocalizedMessage());
             DialogUtils.showErrorDialogAndClose("Something went wrong handling the sync");
         }
     }
@@ -62,6 +60,9 @@ public class ModHandler {
         deleteMods(modsSyncInfo);
         modFiles = findAllMods(modsFolder);
 
+        downloadCurseMods(modsSyncInfo);
+        modFiles = findAllMods(modsFolder);
+
         downloadMods(modsSyncInfo);
     }
 
@@ -71,10 +72,13 @@ public class ModHandler {
             for (File mod : mods) {
                 if (mod.getName().endsWith(".disabled") && modToChange.isActive()) {
                     Path source = mod.toPath();
-                    Files.move(source, source.resolveSibling(mod.getName().split(".disabled")[0]));
+                    String newName = mod.getName().split(".disabled")[0];
+                    Files.move(source, source.resolveSibling(newName));
+                    System.out.printf("Enabled %s%n", newName);
                 } else if (!mod.getName().endsWith(".disabled") && !modToChange.isActive()){
                     Path source = mod.toPath();
                     Files.move(source, source.resolveSibling(mod.getName() + ".disabled"));
+                    System.out.printf("Disabled %s%n", mod.getName());
                 }
             }
         }
@@ -84,19 +88,47 @@ public class ModHandler {
         for (ModFile modToDelete : modsSyncInfo.getModsToDelete()) {
             List<File> mods = findMod(modToDelete.getName());
             for (File mod : mods) {
-                mod.delete();
+                boolean success = mod.delete();
+                if (success)
+                    System.out.printf("Deleted %s%n", mod.getName());
+                else
+                    System.err.printf("Failed to delete %s%n", mod.getName());
+            }
+        }
+    }
+
+    private void downloadCurseMods(ModsSyncInfo modsSyncInfo) {
+        for (CurseDownload modToDownload : modsSyncInfo.getCurseModsToDownload()) {
+            String name = CurseHelper.getModName(modToDownload.getProjectId(), modToDownload.getFileId());
+            if (CurseHelper.UNKNONW.equals(name)) {
+                System.err.printf("Could not find mod with project id: %s and file id: %s %n", modToDownload.getProjectId(), modToDownload.getFileId());
+                continue;
+            }
+            List<File> mods = findMod(name);
+            if (mods.isEmpty()) {
+                try {
+                    String url = CurseHelper.getCurseDownloadUrl(modToDownload.getProjectId(), modToDownload.getFileId());
+                    downloadFile(url);
+                } catch (Exception exception) {
+                    System.err.println(exception.getLocalizedMessage());
+                }
             }
         }
     }
 
     private void downloadMods(ModsSyncInfo modsSyncInfo) {
         for (ModDownload modToDownload : modsSyncInfo.getModsToDownload()) {
-            List<File> mods = findMod(modToDownload.getName());
+            if (modToDownload.getDownloadUrl().toLowerCase().contains("curseforge.com")) {
+                System.err.println("Tried to download directly from curseforge.com, this does not work");
+                continue;
+            }
+
+            List<File> mods = findMod(modToDownload.getResolvedName());
             if (mods.isEmpty()) {
                 try {
                     downloadFile(modToDownload.getDownloadUrl());
-                } catch (Exception ignored) {
-                    System.out.println(ignored);
+                } catch (Exception exception) {
+                    System.err.println(exception.getLocalizedMessage());
                 }
             }
         }
@@ -111,8 +143,7 @@ public class ModHandler {
                 .maxBodySize(20000000)//Increase value if download is more than 20MB
                 .execute();
 
-        String remoteUrl = res.url().toURI().getPath();
-        String remoteFilename = remoteUrl.substring(remoteUrl.lastIndexOf("/") + 1);
+        String remoteFilename = UrlHelper.getModNameFromUrl(res.url());
 
         if (!remoteFilename.endsWith(".jar")) {
             String header = res.header("Content-Disposition");
@@ -120,6 +151,7 @@ public class ModHandler {
                 remoteFilename = header.replaceFirst("(?i)^.*filename=\"?([^\"]+)\"?.*$", "$1");
             }
             if (!remoteFilename.endsWith(".jar")) {
+                System.err.printf("Could not determine jar name for url %s%n", url);
                 return;
             }
         }
@@ -128,6 +160,7 @@ public class ModHandler {
         FileOutputStream out = (new FileOutputStream(filename));
         out.write( res.bodyAsBytes());
         out.close();
+        System.out.printf("Downloaded %s%n", remoteFilename);
     }
 
     private File getRootFolder() throws URISyntaxException {

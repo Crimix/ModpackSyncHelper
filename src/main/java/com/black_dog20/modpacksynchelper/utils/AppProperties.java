@@ -2,7 +2,6 @@ package com.black_dog20.modpacksynchelper.utils;
 
 import com.black_dog20.modpacksynchelper.Main;
 
-import javax.swing.*;
 import java.io.IOException;
 import java.util.Properties;
 
@@ -15,6 +14,7 @@ public class AppProperties {
         try {
             properties.load(Main.class.getClassLoader().getResourceAsStream("app.properties"));
         } catch (IOException e) {
+            System.err.println(e.getLocalizedMessage());
             DialogUtils.showErrorDialogAndClose("Something went wrong wile reading properties from jar!");
         }
     }
