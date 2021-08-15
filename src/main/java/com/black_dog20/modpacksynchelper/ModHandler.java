@@ -6,6 +6,7 @@ import com.black_dog20.modpacksynchelper.json.ModDownload;
 import com.black_dog20.modpacksynchelper.json.ModFile;
 import com.black_dog20.modpacksynchelper.json.ModFileState;
 import com.black_dog20.modpacksynchelper.json.ModsSyncInfo;
+import com.black_dog20.modpacksynchelper.utils.AppProperties;
 import com.black_dog20.modpacksynchelper.utils.DialogUtils;
 import com.black_dog20.modpacksynchelper.utils.JsonUtil;
 import com.black_dog20.modpacksynchelper.utils.UrlHelper;
@@ -40,9 +41,29 @@ public class ModHandler {
                 this.modsFolder = modsFolder.get();
                 modFiles = findAllMods(this.modsFolder);
             } else {
-                DialogUtils.showErrorDialogAndClose(String.format("Could not find mods folder in %s", root.getPath()));
+                if (AppProperties.isDebug()) {
+                    boolean yes = DialogUtils.showChoiceDialog(String.format("Could not find mods folder in %s%nDo you wan to create it", root.getPath()));
+                    if (yes) {
+                        File newDir = new File(addSeparatorIfNeeded(root.getPath()) + "mods");
+                        if (!newDir.exists()){
+                            boolean success = newDir.mkdirs();
+                            if (success) {
+                                modsFolder = findModsFolder(root);
+                                if (modsFolder.isPresent()) {
+                                    this.modsFolder = modsFolder.get();
+                                    modFiles = findAllMods(this.modsFolder);
+                                }
+                            } else {
+                                DialogUtils.showErrorDialogAndClose("Could not create the mods folder");
+                            }
+                        }
+                    } else {
+                        DialogUtils.showErrorDialogAndClose("Cannot continue without mods folder");
+                    }
+                } else {
+                    DialogUtils.showErrorDialogAndClose(String.format("Could not find mods folder in %s", root.getPath()));
+                }
             }
-
         } catch (Exception exception) {
             System.err.println(exception.getLocalizedMessage());
             DialogUtils.showErrorDialogAndClose("Something went wrong handling the sync");

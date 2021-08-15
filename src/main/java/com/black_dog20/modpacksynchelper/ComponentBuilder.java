@@ -2,6 +2,7 @@ package com.black_dog20.modpacksynchelper;
 
 import com.black_dog20.modpacksynchelper.components.MessageConsole;
 import com.black_dog20.modpacksynchelper.utils.AppProperties;
+import com.black_dog20.modpacksynchelper.utils.DialogUtils;
 import com.black_dog20.modpacksynchelper.utils.UrlHelper;
 
 import javax.swing.JButton;
@@ -10,7 +11,6 @@ import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.JTextPane;
 import javax.swing.text.JTextComponent;
@@ -40,7 +40,7 @@ public class ComponentBuilder {
                 UrlHelper.openLink(sourceCodeURL);
             } catch (Exception exception) {
                 System.err.println(exception.getLocalizedMessage());
-                JOptionPane.showMessageDialog(null,"Something went wrong with opening the link");
+                DialogUtils.showErrorDialog("Something went wrong with opening the link");
             }
         });
         JMenuItem viewJson = new JMenuItem("View JSON");
@@ -49,7 +49,7 @@ public class ComponentBuilder {
                 UrlHelper.openLink(new URL(AppProperties.getUrl()));
             } catch (Exception exception) {
                 System.err.println(exception.getLocalizedMessage());
-                JOptionPane.showMessageDialog(null,"Something went wrong with opening the link");
+                DialogUtils.showErrorDialog("Something went wrong with opening the link");
             }
         });
         menu.add(viewSource);
@@ -66,7 +66,7 @@ public class ComponentBuilder {
                 new ModHandler().handle();
             } catch (IOException ioException) {
                 System.err.println(ioException.getLocalizedMessage());
-                JOptionPane.showMessageDialog(null,"Something went wrong while trying to handle sync");
+                DialogUtils.showErrorDialog("Something went wrong while trying to handle sync");
             }
         });
         return button;
@@ -106,7 +106,7 @@ public class ComponentBuilder {
                 UrlHelper.openLink(e);
             } catch (Exception exception) {
                 System.err.println(exception.getLocalizedMessage());
-                JOptionPane.showMessageDialog(null,"Something went wrong with opening the link");
+                DialogUtils.showErrorDialog("Something went wrong with opening the link");
             }
         });
         JScrollPane scrollPane = new JScrollPane(
