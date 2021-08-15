@@ -56,7 +56,7 @@ So you have to trust them.
     "curseModsToDownload": [
         {
             "projectId": <project id>,
-            "fileId": <file di>
+            "fileId": <file id>
         }
     ],
     "modsToDownload": [
