@@ -1,8 +1,10 @@
 # ModpackSyncHelper
-![image](https://user-images.githubusercontent.com/7978180/129472644-d1ce64fa-2cd2-4996-a5e1-1d489a7b8093.png)
 
 ### What is this
 A tool to help people with playing modified modpacks with friends.  
+<div align="center">
+<img src="https://user-images.githubusercontent.com/7978180/129472690-94c574c4-60e8-4fd6-8178-46ec75208daf.png" width="329" height="342">
+</div>
 
 ### Why?
 We all know the usual way of playing a modified modpack with friends 
