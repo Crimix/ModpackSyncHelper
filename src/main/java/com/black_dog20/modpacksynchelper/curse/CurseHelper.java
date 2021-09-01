@@ -3,7 +3,6 @@ package com.black_dog20.modpacksynchelper.curse;
 import com.black_dog20.modpacksynchelper.utils.UrlHelper;
 import com.google.gson.Gson;
 import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
 
 import java.net.URL;
 import java.util.HashMap;
@@ -24,14 +23,14 @@ public class CurseHelper {
                 return PROJECT_CACHE.get(projectId).getPorjectUrl();
             }
 
-            Document doc = Jsoup.connect(String.format("https://api.cfwidget.com/%s", projectId))
+            String json = Jsoup.connect(String.format("https://api.cfwidget.com/%s", projectId))
                     .userAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.131 Safari/537.36")
                     .timeout(30000)
                     .followRedirects(true)
                     .ignoreContentType(true)
                     .maxBodySize(20000000)//Increase value if download is more than 20MB
-                    .get();
-            CurseProject project = gson.fromJson(doc.body().text(), CurseProject.class);
+                    .execute().body();
+            CurseProject project = gson.fromJson(json, CurseProject.class);
             if (project != null) {
                 PROJECT_CACHE.put(projectId, project);
                 return project.getPorjectUrl();
