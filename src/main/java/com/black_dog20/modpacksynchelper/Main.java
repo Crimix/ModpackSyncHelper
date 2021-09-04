@@ -4,6 +4,7 @@ import com.black_dog20.modpacksynchelper.utils.AppProperties;
 import com.black_dog20.modpacksynchelper.utils.DialogUtils;
 
 import javax.swing.Box;
+import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import java.awt.Component;
@@ -30,14 +31,15 @@ public class Main {
 
         JPanel panel = new JPanel();
         panel.setLayout(new GridBagLayout());
+        JButton syncButton = componentBuilder.getSyncButton();
         panel.add(componentBuilder.getMessageConsole(), componentBuilder.getConstraints(1, 7, GridBagConstraints.HORIZONTAL)); //Because we want to catch errors ASAP
         panel.add(Box.createHorizontalStrut(10), componentBuilder.getConstraints(0, 0));
         panel.add(Box.createVerticalStrut(10), componentBuilder.getConstraints(1, 0));
         panel.add(componentBuilder.getWarningLabel(), componentBuilder.getConstraints(1, 1));
         panel.add(Box.createVerticalStrut(10), componentBuilder.getConstraints(1, 2));
-        panel.add(componentBuilder.getSyncButton(), componentBuilder.getConstraints(1, 3));
+        panel.add(syncButton, componentBuilder.getConstraints(1, 3));
         panel.add(Box.createVerticalStrut(10), componentBuilder.getConstraints(1, 4));
-        panel.add(componentBuilder.getHtmlView(), componentBuilder.getConstraints(1, 5, GridBagConstraints.HORIZONTAL));
+        panel.add(componentBuilder.getHtmlView(syncButton), componentBuilder.getConstraints(1, 5, GridBagConstraints.HORIZONTAL));
         panel.add(Box.createVerticalStrut(10), componentBuilder.getConstraints(1, 6));
         panel.add(Box.createVerticalStrut(10), componentBuilder.getConstraints(1, 8));
         panel.add(Box.createHorizontalStrut(10), componentBuilder.getConstraints(2, 0));

@@ -61,13 +61,21 @@ public class ComponentBuilder {
     public JButton getSyncButton() {
         JButton button = new JButton("Sync mods in folder");
         button.setHorizontalAlignment(JButton.CENTER);
+        button.setEnabled(false);
         button.addActionListener(e -> {
-            try {
-                new ModHandler().handle();
-            } catch (IOException ioException) {
-                System.err.println(ioException.getLocalizedMessage());
-                DialogUtils.showErrorDialog("Something went wrong while trying to handle sync");
-            }
+            button.setEnabled(false);
+            Runnable r = () -> {
+                try {
+                    new ModHandler().handle();
+                    button.setEnabled(true);
+                } catch (IOException ioException) {
+                    System.err.println(ioException.getLocalizedMessage());
+                    DialogUtils.showErrorDialog("Something went wrong while trying to handle sync");
+                }
+            };
+            new Thread(r).start();
+
+
         });
         return button;
     }
@@ -92,7 +100,7 @@ public class ComponentBuilder {
         return c;
     }
 
-    public JScrollPane getHtmlView() throws Exception {
+    public JScrollPane getHtmlView(JButton syncButton) throws Exception {
         JEditorPane editor = new JEditorPane();
         HTMLEditorKit kit = new HTMLEditorKit();
         StyleSheet styleSheet = kit.getStyleSheet();
@@ -100,7 +108,7 @@ public class ComponentBuilder {
         editor.setEditorKit(kit);
         editor.setDocument(kit.createDefaultDocument());
         editor.setEditable(false);
-        editor.setText(HtmlBuilder.getHtml());
+        editor.setText(HtmlBuilder.getEmptyHtml());
         editor.addHyperlinkListener(e -> {
             try {
                 UrlHelper.openLink(e);
@@ -114,7 +122,22 @@ public class ComponentBuilder {
                 JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
                 JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
         scrollPane.setMinimumSize(new Dimension(500, 200));
+        scrollPane.setPreferredSize(new Dimension(500, 300));
         editor.setCaretPosition(0);
+
+        Runnable r = () -> {
+            try {
+                System.out.println("Reading online json");
+                editor.setText(HtmlBuilder.getHtml());
+                syncButton.setEnabled(true);
+                System.out.println("Done reading json");
+            } catch (IOException e) {
+                System.err.println("Failed in reading online json");
+                System.err.println(e.getLocalizedMessage());
+            }
+        };
+
+        new Thread(r).start();
 
         return scrollPane;
     }

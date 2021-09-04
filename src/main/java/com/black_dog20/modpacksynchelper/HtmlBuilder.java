@@ -14,6 +14,14 @@ import java.util.stream.Collectors;
 
 public class HtmlBuilder {
 
+    public static String getEmptyHtml() {
+        return String.join("<html><body style='width: 400px;'>",
+                "<b>Mods to change state</b><ul>\n</ul>",
+                "<b>Mods to delete</b><ul>\n</ul>",
+                "<b>Mods to download</b><ul>\n</ul>",
+                "</body></html>");
+    }
+
     public static String getHtml() throws IOException {
         ModsSyncInfo modsSyncInfo = JsonUtil.getModsSyncInfo();
 
@@ -27,7 +35,6 @@ public class HtmlBuilder {
                 elements.stream()
                         .collect(Collectors.joining("", "" ,"<br><br>")),
                 "</body></html>");
-
     }
 
     private static String getModChangeStateHtml(ModsSyncInfo modsSyncInfo) {

@@ -10,13 +10,13 @@ import com.black_dog20.modpacksynchelper.utils.AppProperties;
 import com.black_dog20.modpacksynchelper.utils.DialogUtils;
 import com.black_dog20.modpacksynchelper.utils.JsonUtil;
 import com.black_dog20.modpacksynchelper.utils.UrlHelper;
-import org.jsoup.Connection;
-import org.jsoup.Jsoup;
+import org.apache.commons.io.FileUtils;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -147,7 +147,7 @@ public class ModHandler {
             List<File> mods = findMod(modToDownload.getResolvedName());
             if (mods.isEmpty()) {
                 try {
-                    downloadFile(modToDownload.getDownloadUrl());
+                    downloadFile(fixUrlIfNeeded(modToDownload.getDownloadUrl()));
                 } catch (Exception exception) {
                     System.err.println(exception.getLocalizedMessage());
                 }
@@ -156,31 +156,12 @@ public class ModHandler {
     }
 
     public void downloadFile(String url) throws IOException, URISyntaxException {
-        Connection.Response res = Jsoup.connect(url)
-                .userAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.131 Safari/537.36")
-                .timeout(30000)
-                .followRedirects(true)
-                .ignoreContentType(true)
-                .maxBodySize(20000000)//Increase value if download is more than 20MB
-                .execute();
-
-        String remoteFilename = UrlHelper.getModNameFromUrl(res.url());
-
-        if (!remoteFilename.endsWith(".jar")) {
-            String header = res.header("Content-Disposition");
-            if (header != null && !header.isEmpty()) {
-                remoteFilename = header.replaceFirst("(?i)^.*filename=\"?([^\"]+)\"?.*$", "$1");
-            }
-            if (!remoteFilename.endsWith(".jar")) {
-                System.err.printf("Could not determine jar name for url %s%n", url);
-                return;
-            }
-        }
+        URL downloadUrl = new URL(url);
+        String remoteFilename = UrlHelper.getModNameFromUrl(downloadUrl);
 
         String filename = addSeparatorIfNeeded(modsFolder.getPath()) + remoteFilename;
-        FileOutputStream out = (new FileOutputStream(filename));
-        out.write( res.bodyAsBytes());
-        out.close();
+        File destination = new File(filename);
+        FileUtils.copyURLToFile(downloadUrl, destination);
         System.out.printf("Downloaded %s%n", remoteFilename);
     }
 
@@ -227,5 +208,15 @@ public class ModHandler {
         if (path.endsWith(File.separator))
             return path;
         return path + File.separator;
+    }
+
+    private String fixUrlIfNeeded(String url) throws MalformedURLException {
+        String domainName = UrlHelper.getDomainName(url);
+
+        if (domainName.toLowerCase().contains("dropbox.com")) {
+            return String.format("%s?dl=1", url.split("\\?")[0]);
+        }
+
+        return url;
     }
 }

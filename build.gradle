@@ -20,6 +20,7 @@ configurations {
 dependencies {
     shadowImplementation 'com.google.code.gson:gson:2.8.7'
     shadowImplementation 'org.jsoup:jsoup:1.14.1'
+    shadowImplementation 'commons-io:commons-io:2.11.0'
 
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.0'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.7.0'
