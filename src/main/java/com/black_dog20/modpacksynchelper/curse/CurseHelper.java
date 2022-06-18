@@ -12,6 +12,7 @@ public class CurseHelper {
 
     public static final String UNKNONW = "UNKNOWN";
     public static final String CURSEFORGE = "https://www.curseforge.com/";
+    private static final String API_KEY = "@api_key@";
     private static final Map<Integer, com.black_dog20.modpacksynchelper.curse.CurseProject> PROJECT_CACHE = new HashMap<>();
     private static final Map<Integer, String> FILE_URL_CACHE = new HashMap<>();
     private static final Gson gson = new Gson();
@@ -57,18 +58,17 @@ public class CurseHelper {
             if (FILE_URL_CACHE.containsKey(fileId)) {
                 return FILE_URL_CACHE.get(fileId);
             }
-
-            String url = Jsoup.connect(String.format("https://addons-ecs.forgesvc.net/api/v2/addon/%s/file/%s/download-url", projectId, fileId))
+            String json = Jsoup.connect(String.format("https://api.curseforge.com/v1/mods/%s/files/%s/download-url", projectId, fileId))
                     .userAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.131 Safari/537.36")
+                    .header("X-API-KEY", API_KEY)
                     .timeout(30000)
                     .followRedirects(true)
                     .ignoreContentType(true)
                     .maxBodySize(20000000)//Increase value if download is more than 20MB
-                    .get()
-                    .body()
-                    .text();
-            FILE_URL_CACHE.put(fileId, url);
-            return url;
+                    .execute().body();
+            CurseDownloadUrl curseDownloadUrl = gson.fromJson(json, CurseDownloadUrl.class);
+            FILE_URL_CACHE.put(fileId, curseDownloadUrl.getData());
+            return curseDownloadUrl.getData();
         } catch (Exception e) {
             System.err.println(e.getLocalizedMessage());
             return "";

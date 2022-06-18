@@ -1,7 +1,8 @@
 plugins {
     id 'java'
     id 'net.saliman.properties' version '1.5.1'
-    id "com.github.johnrengelman.shadow" version "7.0.0"
+    id 'com.github.johnrengelman.shadow' version '7.0.0'
+    id 'io.github.crimix.replace-placeholders' version '2.0'
 }
 
 group app_group
@@ -26,15 +27,16 @@ dependencies {
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.7.0'
 }
 
-processResources {
-    duplicatesStrategy = DuplicatesStrategy.INCLUDE
-    from(sourceSets.main.resources.srcDirs) {
-        include 'app.properties'
+replaceResourcePlaceholders {
+    enabled true
+    filesToExpand "app.properties"
+    extraProperties "version", "modpack_name", "modpack_sync_json_url"
+}
 
-        expand  'replaceName':project.modpack_name,
-                'replaceUrl':project.modpack_sync_json_url,
-                'replaceVersion':project.version
-    }
+replaceSourcePlaceholders {
+    enabled true
+    filesToExpand '**/CurseHelper.java'
+    extraProperties "api_key"
 }
 
 jar {

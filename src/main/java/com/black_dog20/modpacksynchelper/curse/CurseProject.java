@@ -8,7 +8,6 @@ public class CurseProject {
     private Map<String, String> urls;
 
     public CurseProject() {
-
     }
 
     public int getId() {

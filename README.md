@@ -17,6 +17,7 @@ Then it is as simple as copying `gradle-local.properties.example` to `gradle-loc
 and changing the two properties.
 
 Where `modpack_sync_json_url` needs to be a JSON file which is accessible over the internet.
+and the `api_key` needs to be a valid API key to CurseForge.
 
 Then run the `jar` task and send the build jar under `root/build/libs/` to all who needs it.
 
@@ -55,6 +56,7 @@ So you have to trust them.
     ],
     "curseModsToDownload": [
         {
+            "name": "<project name>",
             "projectId": <project id>,
             "fileId": <file id>
         }

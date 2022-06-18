@@ -2,3 +2,4 @@
 # Fill in the values and build it to generate a jar
 modpack_name=
 modpack_sync_json_url=
+api_key=

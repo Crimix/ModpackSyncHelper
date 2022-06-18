@@ -25,6 +25,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
+
 public class ModHandler {
 
     private File modsFolder;
@@ -94,11 +96,11 @@ public class ModHandler {
                 if (mod.getName().endsWith(".disabled") && modToChange.isActive()) {
                     Path source = mod.toPath();
                     String newName = mod.getName().split(".disabled")[0];
-                    Files.move(source, source.resolveSibling(newName));
+                    Files.move(source, source.resolveSibling(newName), REPLACE_EXISTING);
                     System.out.printf("Enabled %s%n", newName);
                 } else if (!mod.getName().endsWith(".disabled") && !modToChange.isActive()){
                     Path source = mod.toPath();
-                    Files.move(source, source.resolveSibling(mod.getName() + ".disabled"));
+                    Files.move(source, source.resolveSibling(mod.getName() + ".disabled"), REPLACE_EXISTING);
                     System.out.printf("Disabled %s%n", mod.getName());
                 }
             }
