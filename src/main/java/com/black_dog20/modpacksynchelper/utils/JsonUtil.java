@@ -3,12 +3,12 @@ package com.black_dog20.modpacksynchelper.utils;
 import com.black_dog20.modpacksynchelper.Main;
 import com.black_dog20.modpacksynchelper.json.ModsSyncInfo;
 import com.google.gson.Gson;
+import org.jsoup.Jsoup;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.net.URL;
 
 public class JsonUtil {
 
@@ -19,8 +19,14 @@ public class JsonUtil {
     }
 
 
-    private static String readUrl(String urlString) throws IOException {
-        return baseRead(new URL(urlString).openStream());
+    public static String readUrl(String urlString) throws IOException {
+        return Jsoup.connect(urlString)
+                .userAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.131 Safari/537.36")
+                .timeout(30000)
+                .followRedirects(true)
+                .ignoreContentType(true)
+                .maxBodySize(20000000)//Increase value if download is more than 20MB
+                .execute().body();
     }
 
     private static String readDebugResource() throws IOException {

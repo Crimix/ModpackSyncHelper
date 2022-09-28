@@ -3,6 +3,7 @@ package com.black_dog20.modpacksynchelper.components;
 import javax.swing.event.DocumentListener;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
+import javax.swing.text.Element;
 import javax.swing.text.JTextComponent;
 import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyleConstants;
@@ -226,6 +227,7 @@ public class MessageConsole
             {
                 if (isAppend)
                 {
+                    handleCarriageReturn(line);
                     int offset = document.getLength();
                     document.insertString(offset, line, attributes);
                     textComponent.setCaretPosition( document.getLength() );
@@ -244,6 +246,19 @@ public class MessageConsole
             }
 
             buffer.setLength(0);
+        }
+    }
+
+    /*
+    Custom handling I needed to make sure carriage return works as it should
+     */
+    private void handleCarriageReturn(String line) throws BadLocationException {
+        if (line.startsWith("\r") && !line.startsWith("\r\n")) {
+            Element root = document.getDefaultRootElement();
+            Element element = root.getElement(root.getElementCount()-1);
+            int start = element.getStartOffset();
+            document.remove(start, document.getLength()-start);
+            textComponent.setCaretPosition( start );
         }
     }
 }

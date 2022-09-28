@@ -127,10 +127,8 @@ public class ComponentBuilder {
 
         Runnable r = () -> {
             try {
-                System.out.println("Reading online json");
                 editor.setText(HtmlBuilder.getHtml());
                 syncButton.setEnabled(true);
-                System.out.println("Done reading json");
             } catch (IOException e) {
                 System.err.println("Failed in reading online json");
                 System.err.println(e.getLocalizedMessage());
