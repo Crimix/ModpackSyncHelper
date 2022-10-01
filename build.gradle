@@ -23,6 +23,7 @@ dependencies {
     shadowImplementation 'org.jsoup:jsoup:1.14.1'
     shadowImplementation 'commons-io:commons-io:2.11.0'
     shadowImplementation 'me.tongfei:progressbar:0.9.4'
+    shadowImplementation 'com.google.guava:guava:31.1-jre'
 
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.0'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.7.0'
@@ -48,7 +49,7 @@ jar {
 
 shadowJar {
     configurations = [project.configurations.shadowImplementation]
-    relocate 'com.google.gson', 'com.black_dog20.modpacksynchelper.shadow.gson'
+    relocate 'com.google', 'com.black_dog20.modpacksynchelper.shadow.google'
     relocate 'org.jsoup', 'com.black_dog20.modpacksynchelper.shadow.jsoup'
     minimize()
     classifier '' // Replace the default jar

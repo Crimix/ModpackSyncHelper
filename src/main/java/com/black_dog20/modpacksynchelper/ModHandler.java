@@ -9,6 +9,7 @@ import com.black_dog20.modpacksynchelper.json.ModsSyncInfo;
 import com.black_dog20.modpacksynchelper.utils.AppProperties;
 import com.black_dog20.modpacksynchelper.utils.DialogUtils;
 import com.black_dog20.modpacksynchelper.utils.JsonUtil;
+import com.black_dog20.modpacksynchelper.utils.ProgressBarUtil;
 import com.black_dog20.modpacksynchelper.utils.UrlHelper;
 import org.apache.commons.io.FileUtils;
 
@@ -27,6 +28,9 @@ import java.util.stream.Collectors;
 
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
+/**
+ * Class to (de)activate, delete and download mods
+ */
 public class ModHandler {
 
     private File modsFolder;
@@ -72,11 +76,15 @@ public class ModHandler {
         }
     }
 
+    /**
+     * The main method of the handler it ensures that all actions happen in the correct order.
+     */
     public void handle() throws IOException {
         if (modsFolder == null)
             DialogUtils.showErrorDialogAndClose("Could not find mods folder");
         ModsSyncInfo modsSyncInfo = JsonUtil.getModsSyncInfo();
 
+        System.out.println("Handling mod sync");
         changeState(modsSyncInfo);
         modFiles = findAllMods(modsFolder);
 
@@ -87,10 +95,12 @@ public class ModHandler {
         modFiles = findAllMods(modsFolder);
 
         downloadMods(modsSyncInfo);
+
+        System.out.println("Done handling mod sync");
     }
 
     private void changeState(ModsSyncInfo modsSyncInfo) throws IOException {
-        for (ModFileState modToChange : modsSyncInfo.getModsToChangeState()) {
+        for (ModFileState modToChange : ProgressBarUtil.wrapWithProgressBar(modsSyncInfo.getModsToChangeState(), "Change state")) {
             List<File> mods = findMod(modToChange.getName());
             for (File mod : mods) {
                 if (mod.getName().endsWith(".disabled") && modToChange.isActive()) {
@@ -108,7 +118,7 @@ public class ModHandler {
     }
 
     private void deleteMods(ModsSyncInfo modsSyncInfo) {
-        for (ModFile modToDelete : modsSyncInfo.getModsToDelete()) {
+        for (ModFile modToDelete : ProgressBarUtil.wrapWithProgressBar(modsSyncInfo.getModsToDelete(), "Delete mods")) {
             List<File> mods = findMod(modToDelete.getName());
             for (File mod : mods) {
                 boolean success = mod.delete();
@@ -121,8 +131,8 @@ public class ModHandler {
     }
 
     private void downloadCurseMods(ModsSyncInfo modsSyncInfo) {
-        for (CurseDownload modToDownload : modsSyncInfo.getCurseModsToDownload()) {
-            String name = CurseHelper.getModName(modToDownload.getProjectId(), modToDownload.getFileId());
+        for (CurseDownload modToDownload : ProgressBarUtil.wrapWithProgressBar(modsSyncInfo.getCurseModsToDownload(), "Download Curse mod")) {
+            String name = CurseHelper.getModName(modToDownload);
             if (CurseHelper.UNKNONW.equals(name)) {
                 System.err.printf("Could not find mod with project id: %s and file id: %s %n", modToDownload.getProjectId(), modToDownload.getFileId());
                 continue;
@@ -130,7 +140,7 @@ public class ModHandler {
             List<File> mods = findMod(name);
             if (mods.isEmpty()) {
                 try {
-                    String url = CurseHelper.getCurseDownloadUrl(modToDownload.getProjectId(), modToDownload.getFileId());
+                    String url = CurseHelper.getCurseDownloadUrl(modToDownload);
                     downloadFile(url);
                 } catch (Exception exception) {
                     System.err.println(exception.getLocalizedMessage());
@@ -140,9 +150,9 @@ public class ModHandler {
     }
 
     private void downloadMods(ModsSyncInfo modsSyncInfo) {
-        for (ModDownload modToDownload : modsSyncInfo.getModsToDownload()) {
-            if (modToDownload.getDownloadUrl().toLowerCase().contains("curseforge.com")) {
-                System.err.println("Tried to download directly from curseforge.com, this does not work");
+        for (ModDownload modToDownload : ProgressBarUtil.wrapWithProgressBar(modsSyncInfo.getModsToDownload(), "Download mod")) {
+            if (modToDownload.getDownloadUrl().toLowerCase().contains(CurseHelper.CURSEFORGE_DOMAIN)) {
+                System.err.println(String.format("Tried to download %s directly from curseforge.com, this does not work", modToDownload.getName()));
                 continue;
             }
 

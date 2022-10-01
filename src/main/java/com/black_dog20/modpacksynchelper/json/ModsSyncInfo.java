@@ -3,6 +3,10 @@ package com.black_dog20.modpacksynchelper.json;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Class that corresponds to my custom json format
+ * This is the direct deserialization object for the hosted json file
+ */
 public class ModsSyncInfo {
 
     private List<ModFileState> modsToChangeState = new ArrayList<>();
