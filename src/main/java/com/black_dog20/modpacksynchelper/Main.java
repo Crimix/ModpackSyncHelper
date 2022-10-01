@@ -41,7 +41,9 @@ public class Main {
         panel.add(Box.createVerticalStrut(10), componentBuilder.getConstraints(1, 4));
         panel.add(componentBuilder.getHtmlView(syncButton), componentBuilder.getConstraints(1, 5, GridBagConstraints.HORIZONTAL));
         panel.add(Box.createVerticalStrut(10), componentBuilder.getConstraints(1, 6));
-        panel.add(Box.createVerticalStrut(10), componentBuilder.getConstraints(1, 8));
+        panel.add(Box.createVerticalStrut(5), componentBuilder.getConstraints(1, 8));
+        panel.add(componentBuilder.getProgressBar(), componentBuilder.getConstraints(1, 9, GridBagConstraints.HORIZONTAL));
+        panel.add(Box.createVerticalStrut(5), componentBuilder.getConstraints(1, 10));
         panel.add(Box.createHorizontalStrut(10), componentBuilder.getConstraints(2, 0));
         panel.setAlignmentX(Component.CENTER_ALIGNMENT);
         frame.getContentPane().add(panel);

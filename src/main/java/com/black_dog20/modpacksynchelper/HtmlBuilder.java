@@ -5,17 +5,13 @@ import com.black_dog20.modpacksynchelper.json.CurseDownload;
 import com.black_dog20.modpacksynchelper.json.ModDownload;
 import com.black_dog20.modpacksynchelper.json.ModsSyncInfo;
 import com.black_dog20.modpacksynchelper.utils.JsonUtil;
+import com.black_dog20.modpacksynchelper.utils.ProgressBarUtil;
 import com.black_dog20.modpacksynchelper.utils.UrlHelper;
-import me.tongfei.progressbar.ConsoleProgressBarConsumer;
-import me.tongfei.progressbar.ProgressBar;
-import me.tongfei.progressbar.ProgressBarBuilder;
-import me.tongfei.progressbar.ProgressBarStyle;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class HtmlBuilder {
 
@@ -47,13 +43,13 @@ public class HtmlBuilder {
     }
 
     private static String getModChangeStateHtml(ModsSyncInfo modsSyncInfo) {
-        return wrapWithProgressBar(modsSyncInfo.getModsToChangeState().stream(), String.format("%1$-20s","Mods to change"))
+        return ProgressBarUtil.wrapWithProgressBar(modsSyncInfo.getModsToChangeState().stream(), String.format("%1$-20s","Mods to change"))
                 .map(o -> String.format("<li>%s disabled: %s</li>\n", o.getName(), !o.isActive()))
                 .collect(Collectors.joining("", "<b>Mods to change state</b><ul>\n", "</ul>"));
     }
 
     private static String getModDeleteHtml(ModsSyncInfo modsSyncInfo) {
-        return wrapWithProgressBar(modsSyncInfo.getModsToChangeState().stream(), String.format("%1$-20s","Mods to delete"))
+        return ProgressBarUtil.wrapWithProgressBar(modsSyncInfo.getModsToChangeState().stream(), String.format("%1$-20s","Mods to delete"))
                 .map(o -> String.format("<li>%s</li>\n", o.getName()))
                 .collect(Collectors.joining("", "<b>Mods to delete</b><ul>\n", "</ul>"));
     }
@@ -63,18 +59,9 @@ public class HtmlBuilder {
         objects.addAll(modsSyncInfo.getCurseModsToDownload());
         objects.addAll(modsSyncInfo.getModsToDownload());
 
-       return wrapWithProgressBar(objects.stream(), String.format("%1$-20s","Mods to fetch "))
+       return ProgressBarUtil.wrapWithProgressBar(objects.stream(), String.format("%1$-20s","Mods to fetch "))
                 .map(HtmlBuilder::getSingleModDownloadHtml)
                 .collect(Collectors.joining("", "<b>Mods to download</b><ul>\n", "</ul>"));
-    }
-
-    private static <T> Stream<T> wrapWithProgressBar(Stream<T> stream, String title) {
-        ProgressBarBuilder progressBarBuilder = new ProgressBarBuilder()
-                .setTaskName(title)
-                .setConsumer(new ConsoleProgressBarConsumer(System.out, 70))
-                .setStyle(ProgressBarStyle.ASCII)
-                .hideETA();
-        return ProgressBar.wrap(stream, progressBarBuilder);
     }
 
     private static String getSingleModDownloadHtml(Object object) {

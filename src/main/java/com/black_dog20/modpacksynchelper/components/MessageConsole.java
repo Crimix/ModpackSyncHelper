@@ -92,6 +92,15 @@ public class MessageConsole
         System.setErr( new PrintStream(cos, true) );
     }
 
+    public PrintStream redirectStream() {
+        return redirectStream(null, null);
+    }
+
+    public PrintStream redirectStream(Color textColor, PrintStream printStream) {
+        ConsoleOutputStream cos = new ConsoleOutputStream(textColor, printStream);
+        return new PrintStream(cos, true);
+    }
+
     /*
      *  To prevent memory from being used up you can control the number of
      *  lines to display in the console

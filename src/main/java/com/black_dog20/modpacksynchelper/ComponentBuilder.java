@@ -13,6 +13,7 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JScrollPane;
 import javax.swing.JTextPane;
+import javax.swing.UIManager;
 import javax.swing.text.JTextComponent;
 import javax.swing.text.html.HTMLEditorKit;
 import javax.swing.text.html.StyleSheet;
@@ -20,12 +21,14 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 
 public class ComponentBuilder {
 
     private final URL sourceCodeURL = new URL("https://github.com/Crimix/ModpackSyncHelper");
+    public static PrintStream PROGRESS_BAR_STREAM;
 
     public ComponentBuilder() throws MalformedURLException {
 
@@ -153,5 +156,14 @@ public class ComponentBuilder {
         console.redirectErr(Color.RED, null);
 
         return scrollPane;
+    }
+
+    public JTextComponent getProgressBar() {
+        JTextComponent textComponent = new JTextPane();
+        textComponent.setBackground(UIManager.getColor ( "Panel.background" ));
+        MessageConsole console = new MessageConsole(textComponent);
+        console.setMessageLines(1);
+        PROGRESS_BAR_STREAM = console.redirectStream();
+        return textComponent;
     }
 }
