@@ -29,6 +29,7 @@ public class CurseHelper {
     public static final String CURSEFORGE_URL = "https://www.curseforge.com/";
     public static final String CURSEFORGE_DOMAIN = "curseforge.com";
     private static final String API_KEY = "@api_key@";
+    private static final String API_URL = "https://api.curseforge.com/v1";
     private static final Map<Integer, CurseProject> PROJECT_CACHE = new HashMap<>(); //Cache to limit the times I need to ask the API
     private static final Gson gson = new Gson();
 
@@ -37,6 +38,9 @@ public class CurseHelper {
      * @param curseDownloadList the list of mods to download
      */
     public static void fetchMetadata(List<CurseDownload> curseDownloadList) {
+        if (curseDownloadList.isEmpty()) {
+            return;
+        }
         System.out.println("Fetching all Curse metadata");
         List<List<Integer>> modIds = curseDownloadList.stream()
                 .map(CurseDownload::getProjectId)
@@ -62,13 +66,17 @@ public class CurseHelper {
         System.out.println("Done fetching all Curse metadata");
     }
 
+    private static String buildApiUrl(String apiPart) {
+        return String.format("%s/%s", API_URL, apiPart);
+    }
+
     private static <T> List<List<T>> partition(List<T> list) {
         return Lists.partition(list, 50);
     }
 
     private static List<CurseProject> fetchMetadataOperation(List<Integer> modIds) {
         try {
-            String json = UrlHelper.setStandardOptions(Jsoup.connect("https://api.curseforge.com/v1/mods"))
+            String json = UrlHelper.setStandardOptions(Jsoup.connect(buildApiUrl("mods")))
                     .method(Connection.Method.POST)
                     .requestBody(gson.toJson(Map.of("modIds", modIds)))
                     .header("X-API-KEY", API_KEY)
@@ -77,14 +85,14 @@ public class CurseHelper {
             CurseModsResponse curseModsResponse = gson.fromJson(json, CurseModsResponse.class);
             return curseModsResponse.getData();
         } catch (Exception e) {
-            System.err.println(e.getLocalizedMessage());
+            System.err.println(String.format("Failed to fetch curseforge main data because %s", e.getLocalizedMessage()));
             return Collections.emptyList();
         }
     }
 
     private static List<CurseProject.ModFile> fetchFileOperation(List<Integer> fileIds) {
         try {
-            String json = UrlHelper.setStandardOptions(Jsoup.connect("https://api.curseforge.com/v1/mods/files"))
+            String json = UrlHelper.setStandardOptions(Jsoup.connect(buildApiUrl("mods/files")))
                     .method(Connection.Method.POST)
                     .requestBody(gson.toJson(Map.of("fileIds", fileIds)))
                     .header("X-API-KEY", API_KEY)
@@ -93,7 +101,7 @@ public class CurseHelper {
             CurseFilesResponse curseFilesResponse = gson.fromJson(json, CurseFilesResponse.class);
             return curseFilesResponse.getData();
         } catch (Exception e) {
-            System.err.println(e.getLocalizedMessage());
+            System.err.println(String.format("Failed to fetch curseforge file data because %s", e.getLocalizedMessage()));
             return Collections.emptyList();
         }
     }
@@ -111,7 +119,7 @@ public class CurseHelper {
         try {
             return PROJECT_CACHE.get(curseDownload.getProjectId()).getProjectUrl();
         } catch (Exception e) {
-            System.err.println(e.getLocalizedMessage());
+            System.err.println(String.format("Failed to get project url for %s because %s", curseDownload.getProjectId(), e.getLocalizedMessage()));
             return CURSEFORGE_URL;
         }
     }
@@ -125,7 +133,7 @@ public class CurseHelper {
         try {
             return UrlHelper.getModNameFromUrl(new URL(getCurseDownloadUrl(curseDownload)));
         } catch (Exception e) {
-            System.err.println(e.getLocalizedMessage());
+            System.err.println(String.format("Failed to get mod name for %s because %s", curseDownload.getProjectId(), e.getLocalizedMessage()));
             return UNKNONW;
         }
     }
@@ -139,7 +147,7 @@ public class CurseHelper {
         try {
             return PROJECT_CACHE.get(curseDownload.getProjectId()).getModFile(curseDownload.getFileId()).getDownloadUrl();
         } catch (Exception e) {
-            System.err.println(e.getLocalizedMessage());
+            System.err.println(String.format("Failed to get mod download url for %s because %s", curseDownload.getProjectId(), e.getLocalizedMessage()));
             return "";
         }
     }

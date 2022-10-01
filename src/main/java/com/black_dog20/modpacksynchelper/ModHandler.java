@@ -5,7 +5,9 @@ import com.black_dog20.modpacksynchelper.json.CurseDownload;
 import com.black_dog20.modpacksynchelper.json.ModDownload;
 import com.black_dog20.modpacksynchelper.json.ModFile;
 import com.black_dog20.modpacksynchelper.json.ModFileState;
+import com.black_dog20.modpacksynchelper.json.ModrinthDownload;
 import com.black_dog20.modpacksynchelper.json.ModsSyncInfo;
+import com.black_dog20.modpacksynchelper.modrinth.ModrinthHelper;
 import com.black_dog20.modpacksynchelper.utils.AppProperties;
 import com.black_dog20.modpacksynchelper.utils.DialogUtils;
 import com.black_dog20.modpacksynchelper.utils.JsonUtil;
@@ -94,12 +96,19 @@ public class ModHandler {
         downloadCurseMods(modsSyncInfo);
         modFiles = findAllMods(modsFolder);
 
+        downloadModrinthMods(modsSyncInfo);
+        modFiles = findAllMods(modsFolder);
+
         downloadMods(modsSyncInfo);
 
         System.out.println("Done handling mod sync");
     }
 
     private void changeState(ModsSyncInfo modsSyncInfo) throws IOException {
+        if (modsSyncInfo.getModsToChangeState().isEmpty()) {
+            return;
+        }
+
         for (ModFileState modToChange : ProgressBarUtil.wrapWithProgressBar(modsSyncInfo.getModsToChangeState(), "Change state")) {
             List<File> mods = findMod(modToChange.getName());
             for (File mod : mods) {
@@ -118,6 +127,10 @@ public class ModHandler {
     }
 
     private void deleteMods(ModsSyncInfo modsSyncInfo) {
+        if (modsSyncInfo.getModsToDelete().isEmpty()) {
+            return;
+        }
+
         for (ModFile modToDelete : ProgressBarUtil.wrapWithProgressBar(modsSyncInfo.getModsToDelete(), "Delete mods")) {
             List<File> mods = findMod(modToDelete.getName());
             for (File mod : mods) {
@@ -131,6 +144,10 @@ public class ModHandler {
     }
 
     private void downloadCurseMods(ModsSyncInfo modsSyncInfo) {
+        if (modsSyncInfo.getCurseModsToDownload().isEmpty()) {
+            return;
+        }
+
         for (CurseDownload modToDownload : ProgressBarUtil.wrapWithProgressBar(modsSyncInfo.getCurseModsToDownload(), "Download Curse mod")) {
             String name = CurseHelper.getModName(modToDownload);
             if (CurseHelper.UNKNONW.equals(name)) {
@@ -143,16 +160,46 @@ public class ModHandler {
                     String url = CurseHelper.getCurseDownloadUrl(modToDownload);
                     downloadFile(url);
                 } catch (Exception exception) {
-                    System.err.println(exception.getLocalizedMessage());
+                    System.err.println(String.format("Failed to download %s because %s", modToDownload.getProjectId(), exception.getLocalizedMessage()));
+                }
+            }
+        }
+    }
+
+    private void downloadModrinthMods(ModsSyncInfo modsSyncInfo) {
+        if (modsSyncInfo.getModrinthModsToDownload().isEmpty()) {
+            return;
+        }
+
+        for (ModrinthDownload modToDownload : ProgressBarUtil.wrapWithProgressBar(modsSyncInfo.getModrinthModsToDownload(), "Download Modrinth mod")) {
+            String name = ModrinthHelper.getModName(modToDownload);
+            if (ModrinthHelper.UNKNONW.equals(name)) {
+                System.err.printf("Could not find mod with project id: %s and version id: %s %n", modToDownload.getProjectId(), modToDownload.getVersionId());
+                continue;
+            }
+            List<File> mods = findMod(name);
+            if (mods.isEmpty()) {
+                try {
+                    String url = ModrinthHelper.getDownloadUrl(modToDownload);
+                    downloadFile(url);
+                } catch (Exception exception) {
+                    System.err.println(String.format("Failed to download %s because %s", modToDownload.getProjectId(), exception.getLocalizedMessage()));
                 }
             }
         }
     }
 
     private void downloadMods(ModsSyncInfo modsSyncInfo) {
+        if (modsSyncInfo.getModsToDownload().isEmpty()) {
+            return;
+        }
+
         for (ModDownload modToDownload : ProgressBarUtil.wrapWithProgressBar(modsSyncInfo.getModsToDownload(), "Download mod")) {
             if (modToDownload.getDownloadUrl().toLowerCase().contains(CurseHelper.CURSEFORGE_DOMAIN)) {
                 System.err.println(String.format("Tried to download %s directly from curseforge.com, this does not work", modToDownload.getName()));
+                continue;
+            } else if (modToDownload.getDownloadUrl().toLowerCase().contains(ModrinthHelper.MODRINTH_DOMAIN)){
+                System.err.println(String.format("Tried to download %s directly from modrinth.com, this does not work", modToDownload.getName()));
                 continue;
             }
 
@@ -161,7 +208,7 @@ public class ModHandler {
                 try {
                     downloadFile(fixUrlIfNeeded(modToDownload.getDownloadUrl()));
                 } catch (Exception exception) {
-                    System.err.println(exception.getLocalizedMessage());
+                    System.err.println(String.format("Failed to download %s because %s", modToDownload.getName(), exception.getLocalizedMessage()));
                 }
             }
         }

@@ -27,13 +27,15 @@ Then run the `jar` task and send the build jar under `root/build/libs/` to all w
 - You can add mods which should be downloaded to play on the server.
     - This can be a private alpha or beta versioned hosted somewhere.
     - Mods from CurseForge, by project and file id
+    - Mods from Modrinth, by project and version id (only primary files)
 
 ### Is it safe?
 This really depends on your friend as this tool can make it possible to download random files from the internet, not just jars.
 So you have to trust them.
 
 ### JSON format
-
+The following is the json format of the file that should be hosted somewhere.
+You can also find the JSON schema in for this format in the `schema.json` file
 ```
 {
     "modsToChangeState": [
@@ -65,6 +67,13 @@ So you have to trust them.
         {
             "name": "display-mod-name.jar",
             "downloadUrl": "url"
+        }
+    ],
+    "modrinthModsToDownload": [
+        {
+            "name": "<project name>",
+            "projectId": <project id>,
+            "versionId": <version id>
         }
     ]
 }

@@ -5,6 +5,7 @@ import com.black_dog20.modpacksynchelper.json.ModFile;
 import com.black_dog20.modpacksynchelper.json.ModFileState;
 import com.black_dog20.modpacksynchelper.json.ModsSyncInfo;
 import com.black_dog20.modpacksynchelper.json.api.IModDownload;
+import com.black_dog20.modpacksynchelper.modrinth.ModrinthHelper;
 import com.black_dog20.modpacksynchelper.utils.JsonUtil;
 import com.black_dog20.modpacksynchelper.utils.ProgressBarUtil;
 
@@ -37,6 +38,7 @@ public class HtmlBuilder {
         System.out.println("Done fetching json");
 
         CurseHelper.fetchMetadata(modsSyncInfo.getCurseModsToDownload());
+        ModrinthHelper.fetchMetadata(modsSyncInfo.getModrinthModsToDownload());
         System.out.println("Parsing json and metadata");
         String modChangeStateHtml = getModChangeStateHtml(modsSyncInfo);
         String modDeleteHtml = getModDeleteHtml(modsSyncInfo);
@@ -52,12 +54,19 @@ public class HtmlBuilder {
     }
 
     private static String getModChangeStateHtml(ModsSyncInfo modsSyncInfo) {
+        if (modsSyncInfo.getModsToChangeState().isEmpty()) {
+            return "<b>Mods to change state</b><ul>\n</ul>";
+        }
+
         return ProgressBarUtil.wrapWithProgressBar(modsSyncInfo.getModsToChangeState().stream(), "Mods to change")
                 .map(ModFileState::getHtmlElementString)
                 .collect(Collectors.joining("", "<b>Mods to change state</b><ul>\n", "</ul>"));
     }
 
     private static String getModDeleteHtml(ModsSyncInfo modsSyncInfo) {
+        if (modsSyncInfo.getModsToDelete().isEmpty()) {
+            return "<b>Mods to delete</b><ul>\n</ul>";
+        }
         return ProgressBarUtil.wrapWithProgressBar(modsSyncInfo.getModsToDelete().stream(), "Mods to delete")
                 .map(ModFile::getHtmlElementString)
                 .collect(Collectors.joining("", "<b>Mods to delete</b><ul>\n", "</ul>"));
@@ -66,7 +75,12 @@ public class HtmlBuilder {
     private static String getModDownloadHtml(ModsSyncInfo modsSyncInfo) {
         List<IModDownload> objects = new ArrayList<>();
         objects.addAll(modsSyncInfo.getCurseModsToDownload());
+        objects.addAll(modsSyncInfo.getModrinthModsToDownload());
         objects.addAll(modsSyncInfo.getModsToDownload());
+
+        if (objects.isEmpty()) {
+            return "<b>Mods to download</b><ul>\n</ul>";
+        }
 
        return ProgressBarUtil.wrapWithProgressBar(objects.stream(), "Mods to fetch")
                 .map(IModDownload::getHtmlElementString)
