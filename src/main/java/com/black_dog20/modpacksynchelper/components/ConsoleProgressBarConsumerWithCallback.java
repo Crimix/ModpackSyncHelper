@@ -9,7 +9,7 @@ import java.io.PrintStream;
  */
 public class ConsoleProgressBarConsumerWithCallback extends ConsoleProgressBarConsumer {
 
-    private String last;
+    private String last = "";
 
     public ConsoleProgressBarConsumerWithCallback(PrintStream out) {
         super(out);

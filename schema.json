@@ -1,0 +1,113 @@
+{
+  "type": "object",
+  "required": [
+    "modsToChangeState",
+    "modsToDelete",
+    "curseModsToDownload",
+    "modsToDownload"
+  ],
+  "properties": {
+    "modsToChangeState": {
+      "type": "array",
+      "minItems": 0,
+      "uniqueItems": true,
+      "items": {
+        "type": "object",
+        "required": [
+          "name",
+          "active"
+        ],
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "active": {
+            "type": "boolean"
+          }
+        }
+      }
+    },
+    "modsToDelete": {
+      "type": "array",
+      "minItems": 0,
+      "uniqueItems": true,
+      "items": {
+        "type": "object",
+        "required": [
+          "name"
+        ],
+        "properties": {
+          "name": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "curseModsToDownload": {
+      "type": "array",
+      "minItems": 0,
+      "uniqueItems": true,
+      "items": {
+        "type": "object",
+        "required": [
+          "projectId",
+          "fileId"
+        ],
+        "properties": {
+          "projectId": {
+            "type": "integer"
+          },
+          "fileId": {
+            "type": "integer"
+          },
+          "name": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "modsToDownload": {
+      "type": "array",
+      "minItems": 0,
+      "uniqueItems": true,
+      "items": {
+        "type": "object",
+        "required": [
+          "name",
+          "downloadUrl"
+        ],
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "downloadUrl": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "modrinthModsToDownload": {
+      "type": "array",
+      "minItems": 0,
+      "uniqueItems": true,
+      "items": {
+        "type": "object",
+        "required": [
+          "projectId",
+          "versionId"
+        ],
+        "properties": {
+          "projectId": {
+            "type": "string"
+          },
+          "versionId": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}
