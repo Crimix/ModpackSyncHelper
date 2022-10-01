@@ -5,6 +5,7 @@ import com.black_dog20.modpacksynchelper.json.CurseDownload;
 import com.black_dog20.modpacksynchelper.json.ModDownload;
 import com.black_dog20.modpacksynchelper.json.ModsSyncInfo;
 import com.black_dog20.modpacksynchelper.utils.JsonUtil;
+import com.black_dog20.modpacksynchelper.utils.ProgressBarUtil;
 import com.black_dog20.modpacksynchelper.utils.UrlHelper;
 
 import java.io.IOException;
@@ -23,11 +24,15 @@ public class HtmlBuilder {
     }
 
     public static String getHtml() throws IOException {
+        System.out.println("Fetching json");
         ModsSyncInfo modsSyncInfo = JsonUtil.getModsSyncInfo();
+        System.out.println("Done fetching json");
 
+        System.out.println("Parsing json and retrieving metadata");
         String modChangeStateHtml = getModChangeStateHtml(modsSyncInfo);
         String modDeleteHtml = getModDeleteHtml(modsSyncInfo);
         String modDownloadHtml = getModDownloadHtml(modsSyncInfo);
+        System.out.println("Done parsing json and retrieving metadata");
 
         List<String> elements = List.of(modChangeStateHtml, modDeleteHtml, modDownloadHtml);
 
@@ -38,13 +43,13 @@ public class HtmlBuilder {
     }
 
     private static String getModChangeStateHtml(ModsSyncInfo modsSyncInfo) {
-        return modsSyncInfo.getModsToChangeState().stream()
+        return ProgressBarUtil.wrapWithProgressBar(modsSyncInfo.getModsToChangeState().stream(), String.format("%1$-20s","Mods to change"))
                 .map(o -> String.format("<li>%s disabled: %s</li>\n", o.getName(), !o.isActive()))
                 .collect(Collectors.joining("", "<b>Mods to change state</b><ul>\n", "</ul>"));
     }
 
     private static String getModDeleteHtml(ModsSyncInfo modsSyncInfo) {
-        return modsSyncInfo.getModsToDelete().stream()
+        return ProgressBarUtil.wrapWithProgressBar(modsSyncInfo.getModsToChangeState().stream(), String.format("%1$-20s","Mods to delete"))
                 .map(o -> String.format("<li>%s</li>\n", o.getName()))
                 .collect(Collectors.joining("", "<b>Mods to delete</b><ul>\n", "</ul>"));
     }
@@ -54,7 +59,7 @@ public class HtmlBuilder {
         objects.addAll(modsSyncInfo.getCurseModsToDownload());
         objects.addAll(modsSyncInfo.getModsToDownload());
 
-       return objects.stream()
+       return ProgressBarUtil.wrapWithProgressBar(objects.stream(), String.format("%1$-20s","Mods to fetch "))
                 .map(HtmlBuilder::getSingleModDownloadHtml)
                 .collect(Collectors.joining("", "<b>Mods to download</b><ul>\n", "</ul>"));
     }
