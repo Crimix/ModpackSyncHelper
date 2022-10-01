@@ -3,30 +3,32 @@ package com.black_dog20.modpacksynchelper.utils;
 import com.black_dog20.modpacksynchelper.Main;
 import com.black_dog20.modpacksynchelper.json.ModsSyncInfo;
 import com.google.gson.Gson;
-import org.jsoup.Jsoup;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
+/**
+ * Util to read and convert the main self-hosted json file
+ */
 public class JsonUtil {
 
+    //Variable to hold the fetched object such that we only fetch it once.
+    private static ModsSyncInfo CACHED_MODS_SYNC_INFO;
+
+    /**
+     * Gets the {@link ModsSyncInfo} from the json fetched from the url
+     * @return the parsed json as a {@link ModsSyncInfo} object
+     */
     public static ModsSyncInfo getModsSyncInfo() throws IOException {
-        String json = AppProperties.isDebug() ? readDebugResource() : readUrl(AppProperties.getUrl());
-        Gson gson = new Gson();
-        return gson.fromJson(json, ModsSyncInfo.class);
-    }
+        if (CACHED_MODS_SYNC_INFO == null) {
+            String json = AppProperties.isDebug() ? readDebugResource() : UrlHelper.fetchFromUrl(AppProperties.getUrl());
+            Gson gson = new Gson();
+            CACHED_MODS_SYNC_INFO = gson.fromJson(json, ModsSyncInfo.class);
+        }
 
-
-    public static String readUrl(String urlString) throws IOException {
-        return Jsoup.connect(urlString)
-                .userAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.131 Safari/537.36")
-                .timeout(30000)
-                .followRedirects(true)
-                .ignoreContentType(true)
-                .maxBodySize(20000000)//Increase value if download is more than 20MB
-                .execute().body();
+        return CACHED_MODS_SYNC_INFO;
     }
 
     private static String readDebugResource() throws IOException {

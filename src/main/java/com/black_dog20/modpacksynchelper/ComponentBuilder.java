@@ -25,15 +25,22 @@ import java.io.PrintStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 
+/**
+ * Class to build ui components
+ */
 public class ComponentBuilder {
 
-    private final URL sourceCodeURL = new URL("https://github.com/Crimix/ModpackSyncHelper");
-    public static PrintStream PROGRESS_BAR_STREAM;
+    private final URL sourceCodeURL = new URL("https://github.com/Crimix/ModpackSyncHelper"); //Is not static because of MalformedURLException
+    public static PrintStream PROGRESS_BAR_STREAM; //The link between the ui progressbar and the progressbar util
 
     public ComponentBuilder() throws MalformedURLException {
 
     }
 
+    /**
+     * Builds the menu bar ui
+     * @return the menu bar ui
+     */
     public JMenuBar getMenuBar() {
         JMenuBar menubar = new JMenuBar();
         JMenu menu = new JMenu("Help");
@@ -61,6 +68,10 @@ public class ComponentBuilder {
         return menubar;
     }
 
+    /**
+     * Builds the sync button
+     * @return the sync button
+     */
     public JButton getSyncButton() {
         JButton button = new JButton("Sync mods in folder");
         button.setHorizontalAlignment(JButton.CENTER);
@@ -83,16 +94,36 @@ public class ComponentBuilder {
         return button;
     }
 
+    /**
+     * Builds the warning label
+     * @return the warning label
+     */
     public JLabel getWarningLabel() {
         JLabel label = new JLabel("<html>Only use this tool, if you trust the person who gave it to you.<br>It can download files directly from the internet specified by this person.</html>");
         label.setHorizontalAlignment(JButton.CENTER);
+        label.setMinimumSize(new Dimension(500, 50));
+        label.setPreferredSize(new Dimension(500, 50));
+        label.setMaximumSize(new Dimension(500, 50));
         return label;
     }
 
+    /**
+     * Builds a {@link GridBagConstraints} component used to specify the location of a component
+     * @param x the x index of the component
+     * @param y the y index of the component
+     * @return a {@link GridBagConstraints} component used to specify the location of a component
+     */
     public GridBagConstraints getConstraints(int x, int y) {
         return getConstraints(x, y, GridBagConstraints.NONE);
     }
 
+    /**
+     * Builds a {@link GridBagConstraints} component used to specify the location of a component
+     * @param x the x index of the component
+     * @param y the y index of the component
+     * @param fillMode the fill mode for the constraint
+     * @return a {@link GridBagConstraints} component used to specify the location of a component
+     */
     public GridBagConstraints getConstraints(int x, int y, int fillMode) {
         GridBagConstraints c = new GridBagConstraints();
         c.fill = fillMode;
@@ -103,7 +134,12 @@ public class ComponentBuilder {
         return c;
     }
 
-    public JScrollPane getHtmlView(JButton syncButton) throws Exception {
+    /**
+     * Builds the html view used to display the mods to handle
+     * @param syncButton the sync button
+     * @return the html view
+     */
+    public JScrollPane getHtmlView(JButton syncButton) {
         JEditorPane editor = new JEditorPane();
         HTMLEditorKit kit = new HTMLEditorKit();
         StyleSheet styleSheet = kit.getStyleSheet();
@@ -138,11 +174,16 @@ public class ComponentBuilder {
             }
         };
 
-        new Thread(r).start();
+        new Thread(r).start(); //We should not block the ui thread
 
         return scrollPane;
     }
 
+    /**
+     * Builds the console used to display errors and output to the user
+     * This replaces the need for a logfile
+     * @return the console
+     */
     public JScrollPane getMessageConsole() {
         JTextComponent textComponent = new JTextPane();
         JScrollPane scrollPane = new JScrollPane(
@@ -158,6 +199,10 @@ public class ComponentBuilder {
         return scrollPane;
     }
 
+    /**
+     * Builds the progress bar
+     * @return the progress bar
+     */
     public JTextComponent getProgressBar() {
         JTextComponent textComponent = new JTextPane();
         textComponent.setBackground(UIManager.getColor ( "Panel.background" ));
